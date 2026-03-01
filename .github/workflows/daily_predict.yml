@@ -1,0 +1,35 @@
+name: Daily Stock Prediction
+
+on:
+  schedule:
+    # 每天 UTC 时间 10:10 运行 (相当于北京时间 18:10，刚好在收盘后)
+    - cron: '10 10 * * 1-5'  
+  workflow_dispatch: # 允许手动点击按钮触发运行
+
+jobs:
+  predict:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Prediction Script
+        run: python predict_action.py
+
+      - name: Upload Predictions Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Daily-Predictions-CSV
+          path: Predictions/*.csv
+          retention-days: 7
